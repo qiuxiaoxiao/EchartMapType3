@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>echarts4</title>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="echarts.min.js"></script>
+    <script type="text/javascript" src="china-main-city-map.js"></script>
+</head>
+<body>
+<div id="main" style="width: 600px;height: 600px;float: left;"></div>
+<div id="sub" style="width: 600px;height: 600px;float: left;"></div>
+
+<script type="text/javascript">
+
+    var mainChart = echarts.init(document.getElementById('main'));
+    var subChart = echarts.init(document.getElementById('sub'));
+    var curMap = {};
+    loadMap('100000','china');
+    mainChart.on('mapselectchanged',function (params) {
+
+        var mapName = params.batch[0].name;
+        var mapCode = cityMap[mapName];
+        if(!mapCode){
+            alert('无此区域地图显示');
+            return;
+        }
+        loadsubMap(mapCode,mapName);
+    });
+
+    /**
+     加载地图：根据地图所在省市的行政编号，
+     获取对应的json地图数据，然后向echarts注册该区域的地图
+     最后加载地图信息
+     @params {String} mapCode:地图行政编号,for example['中国':'100000', '湖南': '430000']
+     @params {String} mapName: 地图名称
+     */
+    function loadMap(mapCode, mapName) {
+        $.getJSON('china-main-city/' + mapCode + '.json', function (data) {
+            if (data) {
+                echarts.registerMap(mapName, data);
+                var option = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{b}'
+                    },
+                    series: [
+                        {
+                            name: '',
+                            type: 'map',
+                            mapType: mapName,
+                            selectedMode : 'single',
+                            label: {
+                                normal: {
+                                    show: true
+                                },
+                                emphasis: {
+                                    show: true
+                                }
+                            },
+                            data:[
+                            ]
+                        }
+                    ]
+                };
+                mainChart.setOption(option);
+                curMap = {
+                    mapCode: mapCode,
+                    mapName: mapName
+                };
+            } else {
+                alert('无法加载该地图');
+            }
+        });
+    }
+
+
+    function loadsubMap(mapCode, mapName) {
+        $.getJSON('china-main-city/' + mapCode + '.json', function (data) {
+            if (data) {
+                echarts.registerMap(mapName, data);
+                var option = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{b}'
+                    },
+                    series: [
+                        {
+                            name: '',
+                            type: 'map',
+                            mapType: mapName,
+                            selectedMode : 'single',
+                            label: {
+                                normal: {
+                                    show: true
+                                },
+                                emphasis: {
+                                    show: true
+                                }
+                            },
+                            data:[
+                            ]
+                        }
+                    ]
+                };
+                subChart.setOption(option);
+                curMap = {
+                    mapCode: mapCode,
+                    mapName: mapName
+                };
+            } else {
+                alert('无法加载该地图');
+            }
+        });
+    }
+</script>
+</body>
+</html>
